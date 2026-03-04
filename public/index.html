@@ -16,39 +16,71 @@
     <!-- Tailwind CSS for styling -->
     <link rel="stylesheet" href="output.css">
     <style>
+        /* === Mobile-first base === */
         html,
         body {
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
-            overflow: hidden;
             background-color: #020202;
             background-image: radial-gradient(circle at top right, #0a2e2c 0%, #020202 30%, #121b25 100%);
+            background-attachment: fixed;
             color: white;
             font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
         }
 
-        #canvas-container {
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* Desktop: lock to single viewport */
+        @media (min-width: 1024px) {
+
+            html,
+            body {
+                height: 100%;
+                overflow: hidden;
+            }
+        }
+
+        #model-section {
+            position: relative;
             width: 100%;
-            height: 100%;
+            height: 100vh;
+            height: 100svh;
             z-index: 1;
         }
 
-        #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
+        @media (min-width: 1024px) {
+            #model-section {
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+            }
+        }
+
+        #canvas-container {
             width: 100%;
             height: 100%;
+        }
+
+        #ui-layer {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100svh;
             z-index: 10;
-            pointer-events: none;
-            /* Let interactions pass to the 3D canvas */
             display: flex;
             flex-direction: column;
+        }
+
+        @media (min-width: 1024px) {
+            #ui-layer {
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                min-height: unset;
+                pointer-events: none;
+            }
         }
 
         .pointer-events-auto {
@@ -81,7 +113,7 @@
         }
 
         #mesh-label {
-            position: absolute;
+            position: fixed;
             background: rgba(18, 18, 18, 0.85);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(45, 212, 191, 0.4);
@@ -91,14 +123,22 @@
             font-size: 14px;
             font-weight: bold;
             pointer-events: none;
-            /* Don't block raycaster */
             transition: opacity 0.2s;
             opacity: 0;
             z-index: 100;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             text-transform: capitalize;
             transform: translate(-50%, -150%);
-            /* Center above cursor */
+        }
+
+        .model-hint {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
         }
     </style>
 
@@ -132,8 +172,7 @@
             3D Engine...</span>
     </div>
 
-    <!-- 3D Canvas Container -->
-    <div id="canvas-container"></div>
+
 
     <!-- Modal Overlay -->
     <div id="signup-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden pointer-events-auto">
@@ -176,7 +215,7 @@
                 <h1 class="text-2xl font-display font-bold tracking-tight text-white drop-shadow-md">Muscle<span
                         class="text-brand-400">Map</span></h1>
             </div>
-            <nav class="hidden md:flex gap-8 text-sm font-semibold text-gray-300">
+            <nav class="flex gap-8 text-sm font-semibold text-gray-300">
                 <a href="methodology.html" class="hover:text-brand-400 transition-colors">Methodology</a>
             </nav>
         </header>
@@ -212,7 +251,7 @@
             </div>
 
             <!-- Features Glass Panel Right Side (Desktop Only) -->
-            <div class="hidden lg:block w-full lg:w-4/12 z-20 pointer-events-auto opacity-0 animate-fade-in"
+            <div class="w-full lg:w-4/12 z-20 pointer-events-auto opacity-0 animate-fade-in mt-10 lg:mt-0"
                 style="animation-delay: 0.8s;">
                 <div class="glass-panel rounded-3xl p-7 relative overflow-hidden">
                     <div
@@ -280,8 +319,9 @@
 
         </div>
 
-        <!-- Interactive Hint -->
-        <div class="absolute bottom-6 left-0 w-full text-center opacity-60 animate-pulse-slow pointer-events-none z-10">
+        <!-- Interactive Hint (Desktop only) -->
+        <div
+            class="hidden lg:block absolute bottom-6 left-0 w-full text-center opacity-60 animate-pulse-slow pointer-events-none z-10">
             <p class="text-xs tracking-widest uppercase font-bold text-gray-300 drop-shadow-md">Drag to interact with 3D
                 model</p>
         </div>
@@ -290,6 +330,15 @@
         <div id="mesh-label">Muscle Name</div>
 
     </main>
+
+    <!-- 3D Model Section -->
+    <div id="model-section">
+        <div id="canvas-container"></div>
+        <div class="model-hint lg:hidden opacity-60 animate-pulse-slow">
+            <p class="text-xs tracking-widest uppercase font-bold text-gray-300 drop-shadow-md">Swipe to explore the 3D
+                model</p>
+        </div>
+    </div>
 
     <script>
         // Close modal on backdrop click
