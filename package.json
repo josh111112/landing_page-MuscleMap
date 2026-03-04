@@ -1,0 +1,9 @@
+{
+    "scripts": {
+        "build": "tailwindcss -i input.css -o public/output.css --minify"
+    },
+    "devDependencies": {
+        "@tailwindcss/cli": "^4.0.0",
+        "dotenv": "^17.3.1"
+    }
+}

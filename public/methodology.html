@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methodology - MuscleMap</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS for styling -->
+    <link rel="stylesheet" href="output.css">
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+            background-color: #020202;
+            background-image: radial-gradient(circle at top right, #0a2e2c 0%, #020202 30%, #121b25 100%);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: rgba(18, 18, 18, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #2dd4bf 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .math-highlight {
+            color: #2dd4bf;
+            font-family: monospace;
+            background: rgba(45, 212, 191, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .math-highlight-blue {
+            color: #60a5fa;
+            font-family: monospace;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- UI Overlay Layer -->
+    <main class="pt-4 pb-6 px-6 md:pt-6 md:pb-12 md:px-12 lg:pt-8 lg:pb-16 lg:px-16 flex flex-col min-h-screen">
+
+        <!-- Navbar -->
+        <header
+            class="flex justify-between items-center w-full max-w-7xl mx-auto opacity-0 animate-fade-in pointer-events-auto shrink-0"
+            style="animation-delay: 0.1s;">
+            <a href="index.html" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-400 to-blue-600 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                    <svg class="w-6 h-6 text-white drop-shadow-sm" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-display font-bold tracking-tight text-white drop-shadow-md">Muscle<span
+                        class="text-brand-400">Map</span></h1>
+            </a>
+            <nav class="hidden md:flex gap-8 text-sm font-semibold text-gray-300">
+                <a href="index.html" class="hover:text-brand-400 transition-colors">Home</a>
+                <a href="methodology.html" class="text-brand-400 transition-colors">Methodology</a>
+            </nav>
+        </header>
+
+        <!-- Content -->
+        <div class="flex-1 w-full max-w-4xl mx-auto z-20 opacity-0 animate-slide-up mt-16"
+            style="animation-delay: 0.3s;">
+
+            <div class="text-center mb-16">
+                <span
+                    class="inline-block py-1 px-4 rounded-full bg-brand-900/40 border border-brand-500/20 text-brand-400 text-xs font-bold tracking-widest uppercase mb-4 shadow-[0_0_20px_rgba(45,212,191,0.15)] filter backdrop-blur-md">
+                    The Science
+                </span>
+                <h2
+                    class="text-4xl md:text-5xl lg:text-6xl font-display font-extrabold mb-6 shadow-black drop-shadow-2xl">
+                    Training Stat <br class="md:hidden" />
+                    <span class="text-gradient">Methodologies</span>
+                </h2>
+                <p class="text-lg text-gray-400 leading-relaxed font-sans max-w-2xl mx-auto drop-shadow-md">
+                    MuscleMap uses several advanced, scientifically-backed formulas and models to track a lifter's
+                    performance, fatigue, and progression. Below is a detailed breakdown of the exact methodologies used
+                    across the codebase.
+                </p>
+            </div>
+
+            <div class="space-y-8 pb-20">
+
+                <!-- 1. 1 Rep Max -->
+                <section class="glass-panel rounded-3xl p-8 md:p-10 relative overflow-hidden group">
+                    <div
+                        class="absolute -top-20 -right-20 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl group-hover:bg-brand-500/20 transition-colors duration-500">
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 shrink-0 rounded-2xl bg-brand-900/50 border border-brand-500/30 flex items-center justify-center text-brand-400 font-display font-bold text-xl">
+                                1</div>
+                            <h3 class="text-2xl md:text-3xl font-display font-bold text-white">1 Rep Max (1RM)
+                                Estimation</h3>
+                        </div>
+                        <p class="text-gray-300 mb-6 leading-relaxed">
+                            MuscleMap estimates your 1 Rep Max dynamically as you log sets to gauge your absolute
+                            strength without requiring dangerous 1RM tests.
+                        </p>
+                        <div class="space-y-4">
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-brand-400 font-semibold mb-2">Formula</h4>
+                                <p class="text-gray-400 text-sm">It uses the Epley Formula: <span
+                                        class="math-highlight">Estimated 1RM = Weight * (1 + Reps/30)</span></p>
+                            </div>
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-brand-400 font-semibold mb-2">Bodyweight Factoring</h4>
+                                <p class="text-gray-400 text-sm mb-3">For bodyweight exercises, the system intelligently
+                                    adds a percentage of your logged body weight to the external load:</p>
+                                <ul class="list-none space-y-2 text-sm text-gray-400 pl-2">
+                                    <li class="flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-brand-500"></div> Pull-ups / Chin-ups:
+                                        100% Bodyweight
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-brand-500"></div> Dips: 95% Bodyweight
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-brand-500"></div> Squats: 75% Bodyweight
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-brand-500"></div> Push-ups: 65%
+                                        Bodyweight
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. INOL -->
+                <section class="glass-panel rounded-3xl p-8 md:p-10 relative overflow-hidden group">
+                    <div
+                        class="absolute -top-20 -right-20 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors duration-500">
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 shrink-0 rounded-2xl bg-blue-900/40 border border-blue-500/30 flex items-center justify-center text-blue-400 font-display font-bold text-xl">
+                                2</div>
+                            <h3 class="text-2xl md:text-3xl font-display font-bold text-white">INOL (Intensity Number of
+                                Lifts)</h3>
+                        </div>
+                        <p class="text-gray-300 mb-6 leading-relaxed">
+                            INOL is tracked for every logged set (excluding warm-ups) to measure the neurological and
+                            muscular toll of the volume relative to your max strength.
+                        </p>
+                        <div class="space-y-4">
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-blue-400 font-semibold mb-2">Intensity Calculation</h4>
+                                <p class="text-gray-400 text-sm"><span class="math-highlight-blue">Intensity = (Weight /
+                                        1RM) * 100</span> (capped at 99% to ensure mathematical stability).</p>
+                            </div>
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-blue-400 font-semibold mb-2">INOL Formula</h4>
+                                <p class="text-gray-400 text-sm"><span class="math-highlight-blue">INOL = Reps / (100 -
+                                        Intensity)</span></p>
+                            </div>
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-blue-400 font-semibold mb-2">Purpose</h4>
+                                <p class="text-gray-400 text-sm">By tracking INOL over time, users can identify whether
+                                    their training is progressively overloading,
+                                    stagnating, or pushing into territory that risks CNS fatigue, accumulated junk
+                                    volume,
+                                    and diminishing returns. INOL is a reliable early warning system for both
+                                    undertraining
+                                    and overtraining. <br /><br />
+                                    <strong>Here is how to read the INOL graph:</strong>
+                                <ul>
+                                    <li></li>
+                                </ul>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. ACWR -->
+                <section class="glass-panel rounded-3xl p-8 md:p-10 relative overflow-hidden group">
+                    <div
+                        class="absolute -top-20 -right-20 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl group-hover:bg-brand-500/20 transition-colors duration-500">
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 shrink-0 rounded-2xl bg-brand-900/50 border border-brand-500/30 flex items-center justify-center text-brand-400 font-display font-bold text-xl">
+                                3</div>
+                            <h3 class="text-2xl md:text-3xl font-display font-bold text-white">Acute:Chronic Workload
+                                Ratio (ACWR)</h3>
+                        </div>
+                        <p class="text-gray-300 mb-6 leading-relaxed">
+                            To monitor training volume over time and prevent overtraining (or under-training), MuscleMap
+                            tracks your Volume Load (Tonnage) using an Exponentially Weighted Moving Average (EWMA).
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-brand-400 font-semibold mb-2">Volume Load (Daily Load)</h4>
+                                <p class="text-gray-400 text-sm">Calculated as Weight * Reps across all working sets in
+                                    a day.</p>
+                            </div>
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-brand-400 font-semibold mb-2">Acute Load (7 Days)</h4>
+                                <p class="text-gray-400 text-sm">Represents the short-term fatigue or recent workload.
+                                </p>
+                            </div>
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-brand-400 font-semibold mb-2">Chronic Load (28 Days)</h4>
+                                <p class="text-gray-400 text-sm">Represents long-term fitness or historical capacity.
+                                </p>
+                            </div>
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-brand-400 font-semibold mb-2">Ratio & Interpretation</h4>
+                                <p class="text-gray-400 text-sm"><span class="math-highlight">ACWR = Acute Load /
+                                        Chronic Load</span></p>
+                                <p class="text-gray-400 text-xs mt-2">A ratio spiking too high indicates a sharp
+                                    increase in volume (injury risk), while a ratio dropping too low indicates
+                                    detraining.</p>
+                            </div>
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5 md:col-span-2">
+                                <h4 class="text-brand-400 font-semibold mb-2">EWMA Formula</h4>
+                                <p class="text-gray-400 text-sm mb-2"><span class="math-highlight">(Lambda * TodayLoad)
+                                        + ((1 - Lambda) * YesterdayAvg)</span></p>
+                                <p class="text-gray-400 text-sm">Lambda (Acute) = <span class="math-highlight">2 / (7 +
+                                        1)</span></p>
+                                <p class="text-gray-400 text-sm mt-1">Lambda (Chronic) = <span class="math-highlight">2
+                                        / (28 + 1)</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Fatigue -->
+                <section class="glass-panel rounded-3xl p-8 md:p-10 relative overflow-hidden group">
+                    <div
+                        class="absolute -top-20 -right-20 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors duration-500">
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 shrink-0 rounded-2xl bg-blue-900/40 border border-blue-500/30 flex items-center justify-center text-blue-400 font-display font-bold text-xl">
+                                4</div>
+                            <h3 class="text-2xl md:text-3xl font-display font-bold text-white">Muscle Fatigue & Recovery
+                                Modeling</h3>
+                        </div>
+                        <p class="text-gray-300 mb-6 leading-relaxed">
+                            MuscleMap powers its 3D interactive heatmap by maintaining real-time fatigue values (from
+                            0.0 to 1.0) for every individual muscle group.
+                        </p>
+                        <div class="space-y-4">
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-blue-400 font-semibold mb-2">Activation Profiles</h4>
+                                <p class="text-gray-400 text-sm">Every exercise has an activation profile (e.g., Bench
+                                    Press gives 1.0 to Chest, 0.7 to Front Delts, 0.6 to Triceps). The app sums these
+                                    values for all completed sets in a workout.</p>
+                            </div>
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-blue-400 font-semibold mb-2">Intensity Clamping</h4>
+                                <p class="text-gray-400 text-sm">A single workout's total fatigue applied to a muscle is
+                                    clamped at 1.0 (100% fatigue). This prevents edge cases where 10 sets of an exercise
+                                    result in an unrealistic 1000% fatigue.</p>
+                            </div>
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5">
+                                <h4 class="text-blue-400 font-semibold mb-2">Linear Decay Model</h4>
+                                <p class="text-gray-400 text-sm mb-3">Fatigue dissipates over the muscle's specific
+                                    recovery window (usually 4 days default).</p>
+                                <p class="text-gray-400 text-sm"><span class="math-highlight-blue">Decay Factor = 1.0 -
+                                        (Hours Since Workout / (Recovery Days * 24))</span></p>
+                                <p class="text-gray-400 text-sm mt-3 border-t border-white/5 pt-3">The recorded fatigue
+                                    is multiplied by this decay factor constantly to give the live, current-hour fatigue
+                                    percentage shown on the 3D model.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. Double Progression -->
+                <section class="glass-panel rounded-3xl p-8 md:p-10 relative overflow-hidden group">
+                    <div
+                        class="absolute -top-20 -right-20 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl group-hover:bg-brand-500/20 transition-colors duration-500">
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 shrink-0 rounded-2xl bg-brand-900/50 border border-brand-500/30 flex items-center justify-center text-brand-400 font-display font-bold text-xl">
+                                5</div>
+                            <h3 class="text-2xl md:text-3xl font-display font-bold text-white">Double Progression
+                                Automation</h3>
+                        </div>
+                        <p class="text-gray-300 mb-6 leading-relaxed">
+                            For users who select the "Double Progression" mode, the app automates the progressive
+                            overload logic when pre-filling sets for a new workout based on history.
+                        </p>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5 flex-1">
+                                <h4 class="text-brand-400 font-semibold mb-2">Logic</h4>
+                                <p class="text-gray-400 text-sm">It looks at a user-defined Rep Ceiling (e.g., 10 reps)
+                                    and Load Increment (e.g., 5 lbs).</p>
+                            </div>
+                            <div class="bg-dark-900/50 rounded-xl p-5 border border-white/5 flex-[2]">
+                                <h4 class="text-brand-400 font-semibold mb-2">Execution</h4>
+                                <p class="text-gray-400 text-sm">If you hit the rep ceiling in your last workout, the
+                                    app automatically increases your target weight for today by the increment, and drops
+                                    your target reps down to the floor (ceiling - 2).</p>
+                                <p class="text-gray-400 text-sm mt-2">If you didn't hit the ceiling, it simply
+                                    challenges you to do <span class="math-highlight">Previous Reps + 1</span> at the
+                                    same weight.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="w-full text-center py-8 opacity-60 z-10 mt-auto">
+            <p class="text-xs tracking-widest uppercase font-bold text-gray-400 drop-shadow-md">© 2026 MuscleMap.
+                Training with precision.</p>
+        </footer>
+
+    </main>
+</body>
+
+</html>

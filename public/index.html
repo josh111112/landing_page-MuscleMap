@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MuscleMap - 3D Intelligence</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS for styling -->
+    <link rel="stylesheet" href="output.css">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #020202;
+            background-image: radial-gradient(circle at top right, #0a2e2c 0%, #020202 30%, #121b25 100%);
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            /* Let interactions pass to the 3D canvas */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pointer-events-auto {
+            pointer-events: auto;
+        }
+
+        .glass-panel {
+            background: rgba(18, 18, 18, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #2dd4bf 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateX(8px);
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 2px solid #2dd4bf;
+        }
+
+        #mesh-label {
+            position: absolute;
+            background: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(45, 212, 191, 0.4);
+            color: #2dd4bf;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            pointer-events: none;
+            /* Don't block raycaster */
+            transition: opacity 0.2s;
+            opacity: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            text-transform: capitalize;
+            transform: translate(-50%, -150%);
+            /* Center above cursor */
+        }
+    </style>
+
+    <!-- Import maps polyfill for ES modules -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loading"
+        class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-dark-900 transition-opacity duration-700 pointer-events-auto">
+        <div class="relative w-24 h-24 mb-8">
+            <div class="absolute inset-0 border-t-4 border-brand-400 rounded-full animate-spin"></div>
+            <div
+                class="absolute inset-2 border-r-4 border-blue-500 rounded-full animate-[spin_1.5s_linear_infinite_reverse]">
+            </div>
+            <div
+                class="absolute inset-0 flex items-center justify-center text-brand-400 font-display font-bold text-xl drop-shadow-lg">
+                MM</div>
+        </div>
+        <span id="loading-text"
+            class="text-brand-50 font-display font-medium text-lg tracking-widest uppercase letter-spacing-2 animate-pulse">Initializing
+            3D Engine...</span>
+    </div>
+
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Modal Overlay -->
+    <div id="signup-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden pointer-events-auto">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="modal-backdrop"></div>
+        <div class="glass-panel rounded-3xl p-8 relative z-10 w-full max-w-md mx-4">
+            <h3 class="text-2xl font-display font-bold text-white mb-2">Get Notified</h3>
+            <p class="text-gray-400 mb-6">Be the first to know when MuscleMap launches.</p>
+            <div class="flex flex-col gap-4">
+                <input id="signup-name" type="text" placeholder="Your name"
+                    class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 outline-none focus:border-brand-400 transition-colors" />
+                <input id="signup-email" type="email" placeholder="Your email"
+                    class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 outline-none focus:border-brand-400 transition-colors" />
+                <button id="signup-submit"
+                    class="rounded-full bg-white text-dark-900 font-extrabold px-8 py-4 transition-transform hover:-translate-y-1 shadow-[0_0_30px_rgba(255,255,255,0.25)]">
+                    Notify Me
+                </button>
+                <p id="signup-message" class="text-center text-sm hidden"></p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- UI Overlay Layer -->
+    <main id="ui-layer"
+        class="pt-4 pb-6 px-6 md:pt-6 md:pb-12 md:px-12 lg:pt-8 lg:pb-16 lg:px-16 flex flex-col justify-between">
+
+        <!-- Navbar -->
+        <header
+            class="flex justify-between items-center w-full max-w-7xl mx-auto opacity-0 animate-fade-in pointer-events-auto"
+            style="animation-delay: 0.2s;">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-400 to-blue-600 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                    <svg class="w-6 h-6 text-white drop-shadow-sm" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-display font-bold tracking-tight text-white drop-shadow-md">Muscle<span
+                        class="text-brand-400">Map</span></h1>
+            </div>
+            <nav class="hidden md:flex gap-8 text-sm font-semibold text-gray-300">
+                <a href="methodology.html" class="hover:text-brand-400 transition-colors">Methodology</a>
+            </nav>
+        </header>
+
+        <!-- Hero & Main Content -->
+        <div
+            class="flex-1 flex flex-col lg:flex-row items-center justify-between w-full max-w-7xl mx-auto mt-12 lg:mt-0">
+
+            <!-- Hero Left Side -->
+            <div class="w-full lg:w-5/12 z-20 pointer-events-auto">
+                <div class="opacity-0 animate-slide-up" style="animation-delay: 0.5s;">
+                    <span
+                        class="inline-block py-1 px-4 rounded-full bg-brand-900/40 border border-brand-500/20 text-brand-400 text-xs font-bold tracking-widest uppercase mb-6 shadow-[0_0_20px_rgba(45,212,191,0.15)] filter backdrop-blur-md">
+                        The Next Era of Fitness
+                    </span>
+                    <h2
+                        class="text-5xl lg:text-7xl font-display font-extrabold leading-[1.05] mb-6 shadow-black drop-shadow-2xl">
+                        Train with <br />
+                        <span class="text-gradient">3D Intelligence</span>
+                    </h2>
+                    <p class="text-lg text-gray-400 mb-10 leading-relaxed font-sans max-w-lg drop-shadow-md">
+                        Tired of the bro split? <br /> Stop guessing if you're recovered. <br />Stop wondering what to
+                        train today. <br />
+                        <strong class="text-gray-200">MuscleMap</strong> thinks like a coach, not a spreadsheet.
+                    </p>
+                </div>
+                <button onclick="document.getElementById('signup-modal').classList.remove('hidden')"
+                    class="relative group overflow-hidden rounded-full bg-white text-dark-900 font-extrabold px-8 py-4 transition-transform hover:-translate-y-1 shadow-[0_0_30px_rgba(255,255,255,0.25)] hover:shadow-[0_0_40px_rgba(255,255,255,0.4)] flex items-center justify-center">
+                    <span class="relative z-10 flex items-center gap-2">
+                        Get notified when we launch
+                    </span>
+                </button>
+            </div>
+
+            <!-- Features Glass Panel Right Side (Desktop Only) -->
+            <div class="hidden lg:block w-full lg:w-4/12 z-20 pointer-events-auto opacity-0 animate-fade-in"
+                style="animation-delay: 0.8s;">
+                <div class="glass-panel rounded-3xl p-7 relative overflow-hidden">
+                    <div
+                        class="absolute -top-10 -right-10 w-32 h-32 bg-brand-500/20 rounded-full blur-3xl pointer-events-none">
+                    </div>
+                    <div
+                        class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl pointer-events-none">
+                    </div>
+
+                    <h3 class="text-xl font-display font-bold mb-6 flex items-center gap-3 text-white">
+                        <span class="p-1.5 bg-brand-500/20 rounded-lg text-brand-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                                </path>
+                            </svg>
+                        </span>
+                        The Science Behind Every Rep
+                    </h3>
+
+                    <div class="space-y-1">
+                        <!-- Feature 1 -->
+                        <div
+                            class="feature-card p-4 rounded-xl cursor-default border-l-2 border-transparent relative z-10">
+                            <h4 class="font-bold text-white text-md mb-1.5 flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-brand-400"></div> 3D Muscle Heatmap
+                            </h4>
+                            <p class="text-sm text-gray-400 leading-relaxed">A living map of your entire body's fatigue
+                                state, updating in real time as your muscles recover.</p>
+                        </div>
+                        <!-- Feature 2 -->
+                        <div
+                            class="feature-card p-4 rounded-xl cursor-default border-l-2 border-transparent relative z-10">
+                            <h4 class="font-bold text-white text-md mb-1.5 flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-brand-400"></div> A Split That Adapts to You
+                            </h4>
+                            <p class="text-sm text-gray-400 leading-relaxed">Your plan rebuilds itself every day based
+                                on what's recovered.
+                                No static programs, no guesswork, just the right exercises at the right time.</p>
+                        </div>
+                        <!-- Feature 3 -->
+                        <div
+                            class="feature-card p-4 rounded-xl cursor-default border-l-2 border-transparent relative z-10">
+                            <h4 class="font-bold text-white text-md mb-1.5 flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-brand-400"></div> Recovery Intelligence
+                            </h4>
+                            <p class="text-sm text-gray-400 leading-relaxed">Down-to-the-hour precision on when each
+                                muscle hits 100%.
+                                No more guessing. No more leaving gains on the table.</p>
+                        </div>
+                        <!-- Feature 4 -->
+                        <div
+                            class="feature-card p-4 rounded-xl cursor-default border-l-2 border-transparent relative z-10">
+                            <h4 class="font-bold text-white text-md mb-1.5 flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-brand-400"></div> Progressive Overload Tracking
+                            </h4>
+                            <p class="text-sm text-gray-400 leading-relaxed">Sophisticated volume methodology running
+                                silently in the background,
+                                automatically calculating prime and secondary muscle load across every session so you
+                                always hit your weekly targets without the math.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Interactive Hint -->
+        <div class="absolute bottom-6 left-0 w-full text-center opacity-60 animate-pulse-slow pointer-events-none z-10">
+            <p class="text-xs tracking-widest uppercase font-bold text-gray-300 drop-shadow-md">Drag to interact with 3D
+                model</p>
+        </div>
+
+        <!-- 3D Mesh Highlight Tooltip -->
+        <div id="mesh-label">Muscle Name</div>
+
+    </main>
+
+    <script>
+        // Close modal on backdrop click
+        document.getElementById('modal-backdrop').addEventListener('click', () => {
+            document.getElementById('signup-modal').classList.add('hidden');
+        });
+
+        // Handle form submission
+        document.getElementById('signup-submit').addEventListener('click', async () => {
+            const email = document.getElementById('signup-email').value.trim();
+            const name = document.getElementById('signup-name').value.trim();
+            const message = document.getElementById('signup-message');
+            const button = document.getElementById('signup-submit');
+
+            if (!email) {
+                message.textContent = 'Please enter your email.';
+                message.className = 'text-center text-sm text-red-400';
+                message.classList.remove('hidden');
+                return;
+            }
+
+            button.textContent = 'Submitting...';
+            button.disabled = true;
+
+            try {
+                const res = await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, name })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    message.textContent = "You're on the list! We'll notify you at launch. 🎉";
+                    message.className = 'text-center text-sm text-brand-400';
+                    button.textContent = 'Done!';
+                } else {
+                    message.textContent = data.error || 'Something went wrong.';
+                    message.className = 'text-center text-sm text-red-400';
+                    button.textContent = 'Notify Me';
+                    button.disabled = false;
+                }
+            } catch (e) {
+                message.textContent = 'Network error, please try again.';
+                message.className = 'text-center text-sm text-red-400';
+                button.textContent = 'Notify Me';
+                button.disabled = false;
+            }
+
+            message.classList.remove('hidden');
+        });
+    </script>
+    <!-- Three.js Implementation -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
+
+        // 1. Initialize Scene, Camera, and Renderer
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        // Transparent background so CSS radial gradient shows seamlessly underneath
+        scene.background = null;
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const isDesktop = window.innerWidth > 1024;
+        // Position camera to put the model slightly to the right if we are on a large screen
+        camera.position.set(isDesktop ? 2 : 0, 1.5, isDesktop ? 6 : 5);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0); // Transparent clear color
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.4; // Decreased exposure to properly dim the EXR
+        container.appendChild(renderer.domElement);
+
+        // 2. Add Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.6; // Smooth, dramatic slow rotation
+        controls.minDistance = 3;
+        controls.maxDistance = 10;
+        // Limit vertical rotation to look natural
+        controls.minPolarAngle = Math.PI / 3;
+        controls.maxPolarAngle = Math.PI / 1.7;
+
+        if (isDesktop) {
+            controls.target.set(1.5, 0, 0); // Focus controls offset to right
+        }
+
+        // 3. Setup Cinematic Lighting (Replacing directional with Environment Map)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2); // Keep a dim ambient
+        scene.add(ambientLight);
+
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+
+        new EXRLoader().load('Lighting.exr', function (texture) {
+            const exrRenderTarget = pmremGenerator.fromEquirectangular(texture);
+            texture.dispose();
+
+            scene.environment = exrRenderTarget.texture;
+            scene.environmentIntensity = 0.001; // Lower brightness of the EXR
+
+            // Optionally set as background too (user might just want lighting on model)
+            // scene.background = exrRenderTarget.texture;
+        });
+
+        // 4. Load the GLB Model
+        const loader = new GLTFLoader();
+        const modelFileName = 'MuscleModelRemovedKeysRemovedFaceAndHeadCustomColors.glb';
+        const loadingScreen = document.getElementById('loading');
+
+        loader.load(
+            modelFileName,
+            function (gltf) {
+                const model = gltf.scene;
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+
+                if (maxDim === 0 || !isFinite(maxDim)) {
+                    console.error("The model size is 0. Geometry missing.");
+                    document.getElementById('loading-text').innerHTML = '<span class="text-orange-500">Geometry missing in model file.</span>';
+                } else {
+                    const scale = (isDesktop ? 3.5 : 3.0) / maxDim;
+                    model.scale.set(scale, scale, scale);
+                    model.position.sub(center.multiplyScalar(scale));
+
+
+
+                    // Adjust vertical offset
+                    model.position.y -= 0.6;
+
+                    // Shift horizontal model position for desktop layout
+                    if (isDesktop) {
+                        model.position.x += 1.5;
+                    }
+
+                    // Cinematic entrance animation (rise up)
+                    const targetY = model.position.y;
+                    model.position.y -= 3;
+
+                    const entranceAnim = () => {
+                        if (model.position.y < targetY - 0.01) {
+                            model.position.y += (targetY - model.position.y) * 0.04;
+                            requestAnimationFrame(entranceAnim);
+                        } else {
+                            model.position.y = targetY;
+                        }
+                    };
+                    entranceAnim();
+
+                    // Fade out loading screen smoothly
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 700);
+                }
+
+                scene.add(model);
+            },
+            undefined,
+            function (error) {
+                console.error('An error happened loading the GLB model:', error);
+                document.getElementById('loading-text').innerHTML = '<span class="text-red-500 font-bold">Error loading model.</span>';
+            }
+        );
+
+        // 5. Handle Window Resize Responsively
+        window.addEventListener('resize', () => {
+            const isDesk = window.innerWidth > 1024;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            if (isDesk) {
+                controls.target.set(1.5, 0, 0);
+            } else {
+                controls.target.set(0, 0, 0);
+            }
+        });
+
+        // 6. Raycaster and Interaction Setup
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2(-1000, -1000); // Start offscreen
+        let hoveredMesh = null;
+        let originalEmissive = new THREE.Color(0x000000);
+
+        const meshLabel = document.getElementById('mesh-label');
+
+        window.addEventListener('pointermove', (event) => {
+            // Update the mouse variable
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            // Update tooltip position
+            if (meshLabel.style.opacity === '1') {
+                meshLabel.style.left = `${event.clientX}px`;
+                meshLabel.style.top = `${event.clientY}px`;
+            }
+        });
+
+        // 7. Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+
+</html>

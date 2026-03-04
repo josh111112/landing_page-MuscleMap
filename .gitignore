@@ -1,0 +1,6 @@
+.DS_Store
+marketing.md
+.vercel
+.env.local
+.env*.local
+node_modules
